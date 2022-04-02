@@ -1,0 +1,5 @@
+- `q!` 不保存文件改动，退出Vim
+- `/search_text` 向后检索 `search_text`
+- `?search_text` 向前检索 `search_text`
+- `n` 移动到后一个检索结果
+- `N` 移动到前一个检索结果
