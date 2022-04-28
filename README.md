@@ -1,4 +1,4 @@
-# NoteSpace
+# nice-note
 
 记录学习笔记以及在工作、生活中总结出的东西
 
