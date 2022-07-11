@@ -44,4 +44,4 @@
 
 结合已知信息，当 `item` 内容 `child` 的宽度是 `250px` 时，`Flex Item` 的最小尺寸就是 `250px`，肯定会超出父元素 `container`。按照标准规范，给 `item` 设置 `min-width: 0`  ，就可以使 `item` 按照预期平分 `500px` 的宽度。
 
-规范也说明了在滚动容器中，`min-width` 是 `0`，给 `item` 增加 `overflow: auto` 或者`overflow: hidden` 一样可以达到目的。
+规范也说明了在滚动容器中，`min-width` 是 `0`，另外给 `item` 增加 `overflow: auto` 或者`overflow: hidden` 一样可以达到目的。
