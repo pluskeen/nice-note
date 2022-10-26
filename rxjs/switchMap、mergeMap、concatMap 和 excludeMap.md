@@ -109,9 +109,50 @@ this.form.valueChanges
 分析上面的网络日志图：
 -   concatMap 将获取到的表单值转换为 HTTP Observable，称为内部 Observable
 -   然后 concatMap 订阅内部 Observable 并将其输出发送到结果 Observable
--   第二个表单值可能比前一个表单值在后端保存更快
--   如果发生这种情况，新的表单值将**不会**立即映射到 HTTP 请求
--   相反，concatMap 将等待先前的 HTTP Observable 完成，然后再将新值映射到 HTTP Observable，订阅并触发下一次保存
+-   有可能第二个表单值比前一个表单值在后端保存更快，这种情况，新的表单值将**不会**立即映射到 HTTP 请求
+-   相反，concatMap 将等待先前的 HTTP Observable 完成，然后再将新的表单值映射到 HTTP Observable，订阅并触发下一次保存
+
+
+##### merge 操作符
+
+在某些需求中，希望将请求并行运行，而不是等待前面的请求完成后再执行。
+
+![[rxjs-merge.png]]
+
+上图是 `merge` 操作符的弹珠图，被合并的源 Observable 的值会立即输出，直到所有合并的源 Observable 完成，合并后的 Observable 才会完成。
+
+
+##### mergeMap 操作符
+
+如果我们将合并策略与高阶 Observable 映射的概念结合起来，我们就得到了 `mergeMap` 操作符。
+
+![[rxjs-mergeMap.png]]
+
+下面是 `mergeMap` 操作符的工作原理：
+-   源 Observable 的每个值仍然被映射到内部 Observable 中，就像 `concatMap` 的情况一样
+-   和 `concatMap` 一样，内部 Observable 也被 `mergeMap` 订阅
+-   当内部 Observable 发出新值时，它们会立即反映在输出 Observable 中
+-   与 `concatMap` 不同的是，在 `mergeMap` 的情况下，不必等待前一个内部 Observable 完成才能触发下一个内部 Observable
+-   这意味着使用 `mergeMap` 可以让多个内部 Observables 随着时间的推移重叠，并行发射值，就像在图片中以红色突出显示的那样
+
+回到表单输入的例子，如果选择了 `mergeMap` 操作符会发生什么：
+```js
+this.form.valueChanges
+	.pipe(
+		mergeMap(formValue => this.http.put(`/api/course/${courseId}`, formValue))
+	)
+	.subscribe(
+		saveResult => ... handle successful save ...,
+		err => ... handle save error ...
+	);
+```
+
+假设用户开始相当快地输入数据。在网络日志中会看到多个保存请求并行运行：
+
+![[mergeMap-demo.png]]
+
+在这种需求下，并行请求是一个错误！在重负载下，这些请求可能会被乱序处理。
+
 
 
 并且，在实现需求过程中，可能还会遇到以下问题：
