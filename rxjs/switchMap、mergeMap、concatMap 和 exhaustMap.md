@@ -147,16 +147,66 @@ this.form.valueChanges
 	);
 ```
 
-假设用户开始相当快地输入数据。在网络日志中会看到多个保存请求并行运行：
+假设用户相当快地输入数据。在网络日志中会看到多个保存请求并行运行：
 
 ![[mergeMap-demo.png]]
 
 在这种需求下，并行请求是一个错误！在重负载下，这些请求可能会被乱序处理。
 
 
+##### switch 操作符
 
-并且，在实现需求过程中，可能还会遇到以下问题：
--   应该等待一个保存请求完成后再进行另一次保存吗？
--   应该同时进行多次保存吗？
--   应该取消正在进行的保存并开始新的保存吗？
--   是否应该在已经进行中时忽略新的保存尝试？
+顾名思义，就是切换的意思。在切换时，在新的 Observable 送出后直接处理新的 Observable 不管前一个 Observable 是否完成，每当有新的 Observable 送出就会直接把旧的 Observable 退订(unsubscribe)，永远只处理最新的 Observable。
+
+```bash
+click  : ---------c-c------------------c--..
+		map(e => Rx.Observable.interval(1000))
+source : ---------o-o------------------o--..
+				   \ \                  \ ----0----1--... 
+				   \  ----0----1----2----3----4--...
+				    ----0----1----2----3----4--...
+				     switch()
+example: -----------------0----1----2---------0----1--...
+```
+
+从上面的时序图中，可以看到：
+-   开始时，第一次点击后形成的 Observable 被退订了
+-   时间来到第二次点击后的第 3 秒，又触发了一次点击，代表有新的 Observable 值发出
+-   退订了第 3 秒发出的 Observable，最后只在处理最后一次点击后发出的 Observable 值
+
+
+##### switchMap 操作符
+
+```js
+interval(3000)
+	.pipe( switchMap(() => timer(0, 1000)) ) // 立马发出数字，并持续间隔 1 秒后自增
+	.subscribe(data => { console.log(data); });
+// 0 
+// 1 
+// 2 
+// 0 (新事件发生，退订上一個 Observable) 
+// 1 
+// 2 
+// ...
+```
+
+来源 Observable (`interval(0, 3000)`) 每次有新事件发生时，会产生新的 Observable (`timer(0, 1000)`)，如果上一次 Observable 没有完成，会被退掉订阅，「切换」成新的 Observable。因此每次都只会产生 `0, 1, 2` 的循环。
+
+![[rxjs-switchMap.jpg]]
+
+每次事件发生时，都会被换成另一个 Observable 并且订阅它，同时上一个 Observable 如果还没完成，会把它退订掉。
+
+当我们需要关注在「新事件产生的流，过去的流不再重要时」，就可以考虑使用 `switchMap`。
+
+
+##### exhaustMap 操作符
+
+exhaust 有「力竭」的意思，可以把它理解成，来源 Observable 有新事件发生时，它是没有力气产生新的 Observable 的；也就是说当来源事件发生时，如果上一次转换的 Observable 尚未结束，就不会产生新的 Observable。
+
+让我们直接用弹珠图来解释：
+
+![[rxjs-exhaustMap.jpg]]
+
+当来源事件 2 发生时，由于上一次转换后的 Observable 还没结束，因此新的 Observable 不会进行订阅，直接忽略掉；当来源事件 3 发生时，由于之前的 Observable 都结束了，因此新的 Observable 会进行订阅。
+
+在用户可能重复多次触发 API 请求时，使用 exhaustMap ，可以在 API 返回(Observable 结束)前避免产生重复的 API 请求。
