@@ -68,7 +68,7 @@ obj2.foo1()
 obj2.foo2()
 ```
 
-将函数作为参数传递时，会被隐式赋值，回调函数丢失 `this` 绑定，这时候 `setTimeout` 中函数内的 `this` 指向 `window`。
+将函数作为参数传递时，回调函数丢失 `this` 绑定，这时候 `setTimeout` 中函数内的 `this` 指向 `window`。
 
 ##### 题目五
 
@@ -104,7 +104,7 @@ var a = 1
 function foo () {
 	var a = 2
 	function inner () {
-		console.log(this.a)
+		console.log(this.a) // 1
 	}
 	inner()
 }
@@ -112,3 +112,75 @@ foo()
 ```
 
 `inner` 函数内部，`this` 还是指向 `window`。
+
+##### 题目七
+
+```js
+function foo () {
+	console.log(this.a)
+}
+
+function doFoo (fn) {
+	console.log(this)
+	fn()
+}
+
+var a = 2
+var obj = { a: 1, foo }
+var obj2 = { a: 3, doFoo }
+
+obj2.doFoo(obj.foo)
+
+// { a:3, doFoo: f }
+// 2
+```
+
+把一个函数当成参数传递到另一个函数的时候，会发生隐式丢失的问题，且与包裹着它的函数的 `this` 指向无关。
+
+##### 题目八
+
+```js
+function foo () {
+	console.log(this.a)
+	
+	return function () {
+		console.log(this.a) 
+	} 
+}
+
+var a = 2
+var obj = { a: 1 }
+
+foo()
+foo.call(obj)
+foo().call(obj)
+
+// 2
+// 1
+// 2
+// 1
+```
+
+##### 题目九
+
+```js
+function foo (item) {
+	console.log(item, this.a) 
+}
+
+var obj = { a: 'obj' } 
+var a = 'window' 
+var arr = [1, 2, 3]
+// arr.forEach(foo, obj)
+// arr.map(foo, obj)
+arr.filter(function (i) {
+	console.log(i, this.a)
+	return i > 2 
+}, obj)
+
+// 1 "obj"
+// 2 "obj"
+// 3 "obj"
+```
+
+数组中一些方法的第二个参数可以用来改变回调函数中的上下文。上题中没有传递第二个参数 `obj` 的话，`this.a` 打印出来的就是 `window` 下的 `a` 了，传入了之后将 `obj` 显示绑定到第一个参数函数上。
