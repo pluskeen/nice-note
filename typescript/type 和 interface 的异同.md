@@ -67,7 +67,7 @@ const foo: TFooExtend = {
 
 ##### 名字相同时的表现
 
-相同名字的 interface 会合同，相同名字的 type 会报错。
+相同名字的 interface 会合并，相同名字的 type 会报错。
 
 ```ts
 interface IPerson {
