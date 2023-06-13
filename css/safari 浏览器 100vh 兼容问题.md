@@ -46,6 +46,6 @@ body {
 ```
 
 
-##### 额外知识
+### 额外知识
 
 **`load`** 事件在整个页面及所有依赖资源如样式表和图片都已完成加载时触发。它与 [`DOMContentLoaded`](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/DOMContentLoaded_event "DOMContentLoaded") 不同，后者只要页面 DOM 加载完成就触发，无需等待依赖资源的加载。

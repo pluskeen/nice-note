@@ -1,4 +1,5 @@
-##### 问题描述
+### 问题描述
+
 使用 `flex` 布局，经常会遇到 `flex` 容器被子元素撑大的问题。
 
 ```html
@@ -34,10 +35,13 @@
 
 ![[flex布局子元素撑大父元素.png]]
 
-##### 解决办法
+### 解决办法
+
 给 `Flex Item` 容器设置 `overflow:hidden` 或者 `min-width: 0`  属性可以解决。
 
-##### 问题探究
+
+### 问题探究
+
 通过阅读[标准](https://www.w3.org/TR/css-flexbox-1/#min-size-auto)，可以得到如下信息：
 - 在非滚动容器中，主轴方向 `Flex Item` 的最小尺寸基于内容的最小尺寸，此时 `min-width` 的值是 `auto`。
 - 对于滚动容器，`min-width` 的值是 `0`（默认讨论水平布局）
