@@ -24,3 +24,4 @@ speed-measure-plugin*.json
 
 # System Files
 .obsidian
+.DS_Store
