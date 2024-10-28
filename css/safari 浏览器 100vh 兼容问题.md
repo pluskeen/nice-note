@@ -2,8 +2,7 @@
 
 解决方法：
 
-```html
-<script>  
+```js
 const appHeight = () => {  
 	document.body.style.setProperty('height', `${window.innerHeight}px`);  
 }  
@@ -11,18 +10,15 @@ const appHeight = () => {
 window.addEventListener("resize", appHeight);
 // 当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完全加载
 window.addEventListener("DOMContentLoaded", appHeight);  
-</script>
 ```
 
 若通过 `window.innerHeight` 获取的高度需要在其他 CSS 中使用到，可以这样：
 
-```html
-<script>  
+```js
 const appHeight = () => {  
 	const doc = document.documentElement
     doc.style.setProperty('--app-height', `${window.innerHeight}px`)
 }
-</script>
 ```
 
 `appHeight` 函数会新增一个全局的 CSS 自定义变量 `--app-height`，可以在项目其他地方使用，例如：
